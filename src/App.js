@@ -5,31 +5,47 @@ import api from 'services/api';
 import "./styles.css";
 
 function App() {
-  const [ projects, setProjects ] = useState([]);
+  const [ repositories, setRespositories ] = useState([]);
 
   useEffect(() => { 
-    api.get('/projects').then( response =>{
-      setProjects(response.data)
+    api.get('/repositories').then( response =>{
+      setRespositories(response.data);
     });
    }, []);
 
   async function handleAddRepository() {
-    // TODO
+    const response = await api.post('/repositories', {
+      title: `Desafio GoStack ${Date.now()}`,
+      url: 'https://github.com/luizpaulino/projects-frontend',
+      techs:[
+        `Node.js ${Date.now()}`,
+        'React.js'
+      ]
+    });
+
+    setRespositories([...repositories, response.data]);
   }
 
   async function handleRemoveRepository(id) {
-    // TODO
+    const response = await api.delete(`/repositories/${id}`)
+    
+    if (response.status !== 204){
+      alert('Projeto não foi deletado tente novamente');
+      return
+    }
+
+    setRespositories(repositories.filter(repository => repository.id !== id));
   }
 
   return (
     <div>
       <ul data-testid="repository-list">
-        { projects.map( project => (
-          <li key={project.id}>
+        { repositories.map( repository => (
+          <li key={repository.id}>
             
-            { project.title }
+            { repository.title }
 
-            <button onClick={() => handleRemoveRepository(1)}>
+            <button onClick={() => handleRemoveRepository(repository.id)}>
               Remover
             </button>
           </li> 
